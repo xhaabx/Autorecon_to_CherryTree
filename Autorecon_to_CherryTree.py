@@ -14,8 +14,7 @@ def CreateDatabase():
     cur.execute('CREATE TABLE node (node_id INTEGER UNIQUE,name TEXT,txt TEXT,syntax TEXT,tags TEXT,is_ro INTEGER,is_richtxt INTEGER,has_codebox INTEGER,has_table INTEGER,has_image INTEGER,level INTEGER,ts_creation INTEGER,ts_lastsave INTEGER)')   
     
     con.commit()
-    con.close()
-    
+    con.close()  
 def EditDatabase(node_id, father_id, name, info):
      
     con = sqlite3.connect(database_name)
@@ -33,14 +32,14 @@ def EditDatabase(node_id, father_id, name, info):
     ts_creation = '0' 
     ts_lastsave = '0'    
     
-    newnode = "'" + node_id +"','"+ name + "','" + txt +"','"+ syntax +"','"+ tags +"','"+ is_ro +"','"+ is_richtext +"','"+ has_codebox +"','" + has_table + "','" + has_image +"','"+ level +"','"+ ts_creation +"','"+ ts_lastsave + "'"
-    hue = 'INSERT INTO node VALUES('+ newnode + ');'
-    cur.execute(hue)
+    newnode = "'" + node_id +"','" + name + "','" + txt +"','"+ syntax +"','"+ tags +"','"+ is_ro +"','"+ is_richtext +"','"+ has_codebox +"','" + has_table + "','" + has_image +"','"+ level +"','"+ ts_creation +"','"+ ts_lastsave + "'"
+    SQL_query = 'INSERT INTO node VALUES('+ newnode + ');'
+    cur.execute(SQL_query)
     sequence = '1'
     
     newnode = "'" + node_id + "'," +  father_id + " ,'" + sequence + "'" 
-    hue = 'INSERT INTO children VALUES('+ newnode + ');'
-    cur.execute(hue)    
+    SQL_query = 'INSERT INTO children VALUES('+ newnode + ');'
+    cur.execute(SQL_query)    
     con.commit()    
     con.close()
 
@@ -49,8 +48,6 @@ def EditDatabase(node_id, father_id, name, info):
 Main function:
 """
 
-database_name = "Autorecon_to_CherryTree.ctb"
-
 try: 
     os.remove(database_name)
 except:
@@ -58,9 +55,21 @@ except:
 
 autorecon_dir = sys.argv[1]
 
-nodeid = 0 
+if len(sys.argv) > 2:
+        con1 = sqlite3.connect(sys.argv[2])
+        cur1 = con1.cursor()
+        SQL_query = 'SELECT * FROM node ORDER BY node_id DESC LIMIT 1;'    
+        print("Connecting to the CherryTree Database: " + sys.argv[2])
+        nodeid = cur1.execute(SQL_query).fetchone()[0]
+        database_name = sys.argv[2]
+        con1.close()
+else:
+    nodeid = 0 
+    database_name = "Autorecon_to_CherryTree.ctb" 
+    print ("Creating a new database: " + database_name) 
+    CreateDatabase()
 
-CreateDatabase()
+print("Reading the AutoRecon results and appending to the database")
 
 for i in os.listdir(autorecon_dir):
     nodeid = nodeid + 1
@@ -78,3 +87,5 @@ for i in os.listdir(autorecon_dir):
                 EditDatabase(str(nodeid),str(parent_1),str(k),str(content))
             except:
                 pass
+
+print("Done")
