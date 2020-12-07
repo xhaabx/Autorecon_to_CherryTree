@@ -48,11 +48,6 @@ def EditDatabase(node_id, father_id, name, info):
 Main function:
 """
 
-try: 
-    os.remove(database_name)
-except:
-    pass
-
 autorecon_dir = sys.argv[1]
 
 if len(sys.argv) > 2:
@@ -66,6 +61,12 @@ if len(sys.argv) > 2:
 else:
     nodeid = 0 
     database_name = "Autorecon_to_CherryTree.ctb" 
+    
+    try: 
+        os.remove(database_name)
+    except:
+        pass    
+    
     print ("Creating a new database: " + database_name) 
     CreateDatabase()
 
